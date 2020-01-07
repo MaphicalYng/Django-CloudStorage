@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<!-- saved from url=(0051)http://localhost/manage/share/oka5lc7vgdy6fj0qmhrn/ -->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>分享文件下载</title>
+    <link href="{% static 'management/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'management/css/download-style.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'management/css/style.css' %}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand">
+                云端存储-分享文件下载-文件名：{{ link.file.database_name }}
+            </a>
+        </div>
+    </div>
+</nav>
+<div id="particles-js">
+
+
+    <div class="main-element">
+        <div class="info-list">
+            <div align="center" class="info-list-title">
+                {% if valid %}
+                <h3>{{ link.username }} 给您分享了一个文件</h3>
+                <p class="info-list-tip">点击下方按钮进行下载</p>
+                {% else %}
+                <h3>{{ link.username }} 给您分享的文件已经过期</h3>
+                {% endif %}
+            </div>
+            <div align="center" class="info-list-main">
+                <p class="info-list-item"><b>文件名：</b>{{ link.file.database_name }}</p>
+                <p class="info-list-item"><b>大小：</b>{{ link.file.size }}KB</p>
+                <div style="margin-top: 50px;">
+                    <p class="info-list-item"><a href="#" data-toggle="modal" data-target="#myModal">点此给文件主人留言</a></p>
+                    {% if valid %}
+                    <button class="btn btn-primary download-button" onClick="download()">下载</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 模态框（Modal） -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title" id="myModalLabel">留言</h4>
+                    </div>
+                    <form method="post" action="{% url 'management:api_add_message' link.token %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+
+                            <div class="form-group">
+                                <label for="nickname">您的昵称</label>
+                                <input class="form-control" id="nickname" name="nickname" type="text" required="">
+                            </div>
+                            <div class="form-group">
+                                <label for="title">标题</label>
+                                <input class="form-control" id="title" name="title" type="text" required="">
+                            </div>
+                            <div class="form-group">
+                                <label for="content">留言内容</label>
+                                <textarea class="form-control" rows="3" id="content" name="content"
+                                          required=""></textarea>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <input name="back_url" type="text" value="{{ back_url }}" hidden/>
+                            <input type="submit" class="btn btn-primary" value="提交">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        </div>
+                    </form>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal -->
+
+        </div>
+
+	</div>
+</div>
+
+<script src="{% static 'management/js/jquery.min.js' %}"></script>
+<script src = "{% static 'management/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'management/js/particles.min.js' %}"></script>
+<script src="{% static 'management/js/app.js' %}"></script>
+<script type="text/javascript">
+    function download() {
+        document.location.href = "{% url 'management:api_share_download_file' link.token %}";
+    }
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,129 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>云端存储-留言管理</title>
+<link href="{% static "management/css/bootstrap.min.css" %}" rel="stylesheet" type="text/css">
+<link href="{% static "management/css/message-style.css" %}" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="{% static 'management/css/toastr.min.css' %}"/>
+</head>
+
+<body>
+	
+	<nav class="navbar navbar-inverse">
+	 	<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href=".">
+					云端存储-留言管理
+				</a>
+				<div class="navbar-right navbar-text nav-username">已登录用户：{{ username }}</div>
+			</div>
+		</div>
+	</nav>
+	
+	<div class="container main-element">
+		<div class="row">
+			<div class="col-md-2 side-bar">
+				<p class="link-list-title">功能列表</p>
+				<ul type="none" class="link-list">
+					<li>
+						<div onclick="document.location.href='{% url 'management:share_link_list_page' %}'" onMouseOver="changeBackground(this)" onMouseOut="changeBackgroundReturn(this)" class="btn link-list-item">返回</div>
+					</li>
+				</ul>
+				
+				<div class="bottom-status">
+					<p class="link-list-title">服务器状态</p>
+					<div style="margin-top: 15px;"><b>磁盘总空间：</b>{{ total_space }}GB</div>
+					<div style="margin-top: 5px;"><b>剩余空间：</b>{{ remain_space }}GB</div>
+					<div class="progress progress-striped active" id="progress" style="width: 150px;">
+                    <div class="progress-bar progress-bar-success" role="progressbar"
+                         aria-valuenow="{{ space_rate }}" aria-valuemin="0" aria-valuemax="100"
+                         style="width: 30%;">
+                        {{ space_rate }}%
+                        <span class="sr-only">{{ space_rate }}% </span>
+                    </div>
+						</div>
+					<div style="margin-left: 55px;">
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#updateModal">
+                        升级容量
+                    </button>
+                </div>
+
+					<div style="margin-top: 10px; font-weight: 200; font-size: 10px;"><i>数据更新时间：{{ time }}</i></div>
+				</div>
+			</div>
+
+			<div class="col-md-10 list-bar">
+			{% if message_list %}
+				{% for message in message_list %}
+					<div class="panel panel-primary message-item">
+						<div class="panel-heading">
+							{{ message.title }}  <span class="message-time">{{ message.create_time }}</span>
+						</div>
+						<div class="panel-body">
+							<a href="#">{{ message.nickname }}</a>
+							：{{ message.content }}
+						</div>
+					</div>
+				{% endfor %}
+			{% else %}
+				<div class="panel panel-default message-item">
+					<div class="panel-heading">
+						没有任何留言
+					</div>
+				</div>
+			{% endif %}
+			</div>
+		</div>
+	</div>
+
+
+<!-- 模态框升级文件（Modal） -->
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="updateModalLabel">升级容量</h4>
+                </div>
+                <form id="update-space-form" method="post" enctype="multipart/form-data"
+                      action="{% url 'management:api_apply_space' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="space">申请空间</label>
+                            <input class="form-control" id="space" name="new_space" type="number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reason">申请理由</label>
+                            <input class="form-control" id="reason" name="reason" type="text" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input name="back_url" type="text" value="{{ back_url }}" hidden/>
+                        <input class="btn btn-primary" type="submit" value="确定"/>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal -->
+	
+	<script src="{% static "management/js/jquery.min.js" %}"></script>
+	<script src="{% static "management/js/bootstrap.min.js" %}"></script>
+	<script type="text/javascript" src="{% static 'management/js/toastr.min.js' %}"></script>
+	<script type="text/javascript">
+		function changeBackground(div) {
+			div.style = "background-color: #cbcaca;";
+		}
+
+		function changeBackgroundReturn(div) {
+			div.style = "background-color: #ededed;";
+		}
+	</script>
+</body>
+</html>

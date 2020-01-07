@@ -1,0 +1,381 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>个人云端存储-文件列表</title>
+    <link href="{% static 'management/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'management/css/list-style.css' %}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="{% static 'management/css/toastr.min.css' %}"/>
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{% url 'management:file_list_page' '-/' %}">
+                云端存储-回收站
+            </a>
+            <div class="navbar-right navbar-text nav-username">
+                <span>已登录用户：{{ username }}</span>
+                &nbsp;
+                <a class="exit" data-toggle="modal" data-target="#logoutModal">退出</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container main-element">
+    <div class="row">
+        <div class="col-md-2 side-bar">
+            <p class="link-list-title nav nav-pills nav-stacked">功能列表</p>
+            <ul type="none" class="link-list">
+                <ul class="nav nav-pills nav-stacked">
+                    <li style="margin-left:-35px;" class="nav-divider"></li>
+                    <li>
+                        <span class="glyphicon glyphicon glyphicon-user" aria-hidden="true"></span>
+                        <div onmouseover="changeBackground(this)" onmouseout="changeBackgroundReturn(this)"
+                             class="btn link-list-item"
+                             onclick="window.location.href='{% url 'management:file_list_page' '-/' %}'">返回
+                        </div>
+                    </li>
+                </ul>
+            </ul>
+
+
+            <div class="bottom-status">
+                <p class="link-list-title">服务器状态</p>
+                <div style="margin-top: 15px;"><b>磁盘总空间：</b>{{ total_space }}GB</div>
+                <div style="margin-top: 5px;"><b>剩余空间：</b>{{ remain_space }}GB</div>
+                <div class="progress progress-striped active" id="progress" style="width: 150px;">
+                    <div class="progress-bar progress-bar-success" role="progressbar"
+                         aria-valuenow="{{ space_rate }}" aria-valuemin="0" aria-valuemax="100"
+                         style="width: 30%;">
+                        {{ space_rate }}%
+                        <span class="sr-only">{{ space_rate }}% </span>
+                    </div>
+
+                </div>
+                <div style="margin-left: 55px;">
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#updateModal">
+                        升级容量
+                    </button>
+                </div>
+                <div style="margin-top: 10px; font-weight: 200; font-size: 10px;"><i>数据更新时间：{{ time }}</i></div>
+            </div>
+        </div>
+
+        <!--右侧-->
+        <div class="col-md-10 list-bar">
+
+            <table class="table table-hover">
+                <thead class="file-list-head">
+                <tr>
+                    <th class="item_box">文件名</th>
+                    <th class="item_box">文件类型</th>
+                    <th class="item_box">上传时间</th>
+                    <th class="item_box">文件大小</th>
+                    <th class="item_box">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for d in dirs %}
+                <tr>
+
+                    <td>{{ d.display_name }}</td>
+                    <td><span class="glyphicon glyphicon glyphicon-folder-close"
+                              aria-hidden="true"></span>&nbsp;{{ d.file_type.display_name }}
+                    </td>
+                    <td>{{ d.upload_time }}</td>
+                    <td></td>
+                    <td>
+                        <a href="#" data-toggle="modal"
+                           data-target="#recoverModal{{ d.real_name }}">恢复</a>
+                        <a href="#" data-toggle="modal"
+                           data-target="#deleteModal{{ d.real_name }}">彻底删除</a>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                {% for f in files %}
+                <tr>
+
+                    <td>{{ f.display_name }}</td>
+                    <td><span class="glyphicon glyphicon glyphicon-folder-close"
+                              aria-hidden="true"></span>&nbsp;{{ f.file_type.display_name }}
+                    </td>
+                    <td>{{ f.upload_time }}</td>
+                    <td>{{ f.file_size }}KB</td>
+                    <td>
+                        <a href="#" data-toggle="modal"
+                           data-target="#recoverModal{{ f.real_name }}">恢复</a>
+                        <a href="#" data-toggle="modal"
+                           data-target="#deleteModal{{ f.real_name }}">彻底删除</a>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 模态框升级文件（Modal） -->
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="updateModalLabel">升级容量</h4>
+                </div>
+                <form id="update-space-form" method="post" enctype="multipart/form-data"
+                      action="{% url 'management:api_apply_space' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="space">申请空间</label>
+                            <input class="form-control" id="space" name="new_space" type="number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reason">申请理由</label>
+                            <input class="form-control" id="reason" name="reason" type="text" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input name="back_url" type="text" value="{{ back_url }}" hidden/>
+                        <input class="btn btn-primary" type="submit" value="确定"/>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal -->
+
+
+{% for d in dirs %}
+    <!-- 模态框恢复确认（Modal） -->
+    <div class="modal fade" id="recoverModal{{ d.real_name }}" tabindex="-1" role="dialog"
+         aria-labelledby="recoverModalLabel{{ d.real_name }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="recoverModalLabel{{ d.real_name }}">确认删除</h4>
+                </div>
+                <div class="modal-body">
+                    确认要恢复此目录吗？
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="{% url 'management:api_recover_directory' d.real_name %}">
+                        {% csrf_token %}
+                            <input name="current_path" type="text" value="{{ d.current_path }}" hidden/>
+                            <input name="back_url" type="text" value="{{ back_url }}" hidden/>
+                            <input class="btn btn-primary" type="submit" value="恢复">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </form>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+    {% endfor %}
+
+    {% for f in files %}
+    <!-- 模态框恢复确认（Modal） -->
+    <div class="modal fade" id="recoverModal{{ f.real_name }}" tabindex="-1" role="dialog"
+         aria-labelledby="recoverModalLabel{{ f.real_name}}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="recoverModalLabel{{ f.real_name }}">确认删除</h4>
+                </div>
+                <div class="modal-body">
+                    确认要恢复此文件吗？
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="{% url 'management:api_recover_file' f.real_name %}">
+                        {% csrf_token %}
+                        <input name="current_path" type="text" value="{{ f.current_path }}" hidden/>
+                        <input name="back_url" type="text" value="{{ back_url }}" hidden/>
+                        <input type="submit" class="btn btn-primary" value="恢复">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </form>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+    {% endfor %}
+
+
+{% for d in dirs %}
+    <!-- 模态框删除确认（Modal） -->
+    <div class="modal fade" id="deleteModal{{ d.real_name }}" tabindex="-1" role="dialog"
+         aria-labelledby="deleteModalLabel{{ d.real_name }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="deleteModalLabel{{ d.real_name }}">确认删除</h4>
+                </div>
+                <div class="modal-body">
+                    确认要删除此对象吗？
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="{% url 'management:api_delete_directory' d.real_name %}">
+                        {% csrf_token %}
+                        <input name="current_path" type="text" value="{{ current_path }}" hidden/>
+                        <input name="back_url" type="text" value="{{ back_url }}" hidden/>
+                        <input type="submit" class="btn btn-danger" value="确认">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </form>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+    {% endfor %}
+
+    {% for f in files %}
+    <!-- 模态框删除确认（Modal） -->
+    <div class="modal fade" id="deleteModal{{ f.real_name }}" tabindex="-1" role="dialog"
+         aria-labelledby="deleteModalLabel{{ f.real_name}}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="deleteModalLabel{{ f.real_name }}">确认删除</h4>
+                </div>
+                <div class="modal-body">
+                    确认要删除此对象吗？
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="{% url 'management:api_delete_file' f.real_name %}">
+                        {% csrf_token %}
+                        <input name="current_path" type="text" value="{{ current_path }}" hidden/>
+                        <input name="back_url" type="text" value="{{ back_url }}" hidden/>
+                        <input type="submit" class="btn btn-danger" value="确认">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </form>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+    {% endfor %}
+
+<script src="{% static 'management/js/jquery.min.js' %}"></script>
+<script src="{% static 'management/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'management/js/toastr.min.js' %}"></script>
+<script type="text/javascript">
+    function changeBackground(div) {
+        div.style = "background-color: #cbcaca;";
+    }
+
+    function changeBackgroundReturn(div) {
+        div.style = "background-color: #ededed;";
+    }
+
+    function download1() {
+        document.getElementById('download-form1').submit();
+    }
+
+    function checkOrCancelAll() {
+        var chElt = document.getElementById("chElt");
+        var checkedElt = chElt.checked;
+        console.log(checkedElt)
+        var allCheck = document.getElementsByName("choose");
+        if (checkedElt) {
+            for (var i = 0; i < allCheck.length; i++) {
+                allCheck[i].checked = true;
+            }
+            //mySpan.innerHTML="取消全选";
+        } else {
+            //取消全选
+            for (var i = 0; i < allCheck.length; i++) {
+                allCheck[i].checked = false;
+            }
+            //mySpan.innerHTML="全选";
+        }
+        poFn();
+    }
+
+    function caculate() {
+        var inputs = document.getElementsByName("choose");
+        var checked_counts = 0;
+        for (var i = 0; i < inputs.length; i++) {
+
+            if (inputs[i].checked) {
+                checked_counts++;
+
+            }
+        }
+        //			alert(checked_counts)
+        return checked_counts;
+
+    }
+
+
+    function poFn() {
+        checked_counts = caculate();
+        if (checked_counts != 0) {
+            $('.restorefile').removeClass('not');
+            $('.deletex').removeClass('not');
+
+        } else {
+            $('.restorefile').addClass('not');
+            $('.deletex').addClass('not');
+
+        }
+
+    }
+
+    function openMotaiRestore() {
+        if (!$(".restorefile").hasClass("not")) {
+            toastr.success("恢复成功！")
+        }
+    }
+
+    function openMotaiDeletex() {
+        if (!$(".deletex").hasClass("not")) {
+            $("#deletexModal0").modal();
+        }
+
+    }
+
+
+    poFn()
+
+
+    toastr.options = {
+
+        "closeButton": false, //是否显示关闭按钮
+
+        "debug": false, //是否使用debug模式
+
+        "positionClass": "toast-center",//弹出窗的位置
+
+        "showDuration": "300",//显示的动画时间
+
+        "hideDuration": "300",//消失的动画时间
+
+        "timeOut": "1000", //展现时间
+
+        "showEasing": "swing",//显示时的动画缓冲方式
+
+        "hideEasing": "linear",//消失时的动画缓冲方式
+
+        "showMethod": "fadeIn",//显示时的动画方式
+
+        "hideMethod": "fadeOut" //消失时的动画方式
+    };
+</script>
+
+</body>
+
+</html>

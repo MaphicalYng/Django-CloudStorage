@@ -1,0 +1,257 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Pan Admin</title>
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+   <link rel="stylesheet" type="text/css" href="{% static "mix/bootstrap/css/bootstrap.css" %}" >          <link rel="stylesheet" type="text/css" href="{% static "css/theme.css" %}">     <link rel="stylesheet" href="{% static "mix/font-awesome/css/font-awesome.css" %}">      <script src="{%static "mix/jquery-1.7.2.min.js" %}" type="text/javascript"></script>       <style type="tex/css">       body{            background-image: url("{% static "img/black-Linen.png" %}");            }       </style>
+    <!-- Demo page code -->
+
+    <style type="text/css">
+        #line-chart {
+            height:300px;
+            width:800px;
+            margin: 0px auto;
+            margin-top: 1em;
+        }
+        .brand { font-family: georgia, serif; }
+        .brand .first {
+            color: #ccc;
+            font-style: italic;
+        }
+        .brand .second {
+            color: #fff;
+            font-weight: bold;
+        }
+    </style>
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+
+  </head>
+
+  <!--[if lt IE 7 ]> <body class="ie ie6"> <![endif]-->
+  <!--[if IE 7 ]> <body class="ie ie7 "> <![endif]-->
+  <!--[if IE 8 ]> <body class="ie ie8 "> <![endif]-->
+  <!--[if IE 9 ]> <body class="ie ie9 "> <![endif]-->
+  <!--[if (gt IE 9)|!(IE)]><!--> 
+  <body class=""> 
+  <!--<![endif]-->
+    
+    <div class="navbar">
+        <div class="navbar-inner">
+                <ul class="nav pull-right">
+                    <li id="fat-menu" class="dropdown">
+                        <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="icon-user"></i> {{ request.session.adminsname }}
+                            <i class="icon-caret-down"></i>
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            <li><a tabindex="-1" href="#">我的账户</a></li>
+                            <li class="divider"></li>
+                          
+                            <li class="divider visible-phone"></li>
+                            <li><a tabindex="-1" href="/admins/sign-in">切换账号</a></li>
+                        </ul>
+                    </li>
+                    
+                </ul>
+                <a class="brand" href="/admins/index"><span class="second">网盘后台管理页面</span></a>
+        </div>
+    </div>
+    
+    <div class="sidebar-nav">
+        <form class="search form-inline">
+            <input type="text" placeholder="搜索文件...">
+        </form>
+				<a href="/admins/index" class="nav-header" ><i class="icon-dashboard"></i>网盘信息</a>
+        <a href="#dashboard-menu" class="nav-header" data-toggle="collapse"><i class="icon-user"></i>用户管理</a>
+        <ul id="dashboard-menu" class="nav nav-list collapse in">            
+            <li ><a href="/admins/users">用户信息</a></li>
+            <li ><a href="/admins/user/0">用户编辑</a></li>
+            <li ><a href="/admins/check">用户审核</a></li>  <li ><a href="/admins/space-check">空间扩展审核</a></li>
+        </ul>
+        
+        <a href="#file-menu" class="nav-header" data-toggle="collapse"><i class="icon-folder-open"></i>文件管理</a>
+        <ul id="file-menu" class="nav nav-list collapse in">
+            <li ><a href="/admins/files">文件信息</a></li>
+            <li ><a href="/admins/file/0">文件编辑</a></li>
+            <li ><a href="/admins/change_type">类型编辑</a></li>
+        </ul>
+        
+        <a href="#data-menu" class="nav-header" data-toggle="collapse"><i class="icon-cloud"></i>数据管理</a>
+        <ul id="data-menu" class="nav nav-list collapse in">
+           <li ><a href="/admins/backup">数据备份并加密</a></li>
+        </ul>
+
+        <a href="#accounts-menu" class="nav-header" data-toggle="collapse"><i class="icon-briefcase"></i>我的账户</a>
+        <ul id="accounts-menu" class="nav nav-list collapse">
+            <li ><a href="/admins/sign-in">登录</a></li>
+            <li ><a href="/admins/sign-up">注册</a></li>
+            <li ><a href="/admins/reset-password">重置密码</a></li>
+        </ul>
+
+    </div>
+
+    
+    <div class="content">
+        
+        <div class="header">    
+            <h1 class="page-title">文件信息</h1>
+        </div>
+        
+                <ul class="breadcrumb">
+            <li><a href="/admins/index">主页</a> <span class="divider">/</span></li>
+            <li class="active">文件信息</li>
+        </ul>
+
+        <div class="container-fluid">
+            <div class="row-fluid">
+                    
+							<div class="btn-toolbar">
+							    <button class="btn btn-success" onclick="window.location.href = '/admins/change_type'"><i class="icon-plus"></i>&nbsp;编辑类型</button>
+							    <button class="btn">导入</button>
+							    <button class="btn">导出</button>
+							
+							</div>
+							<div class="well">
+							    <table class="table">
+							      <thead>
+							        <tr>
+							          <th >序号</th>
+							          <th>文件名</th>
+							          <th>文件类型</th>
+							          <th>上传者</th>
+							          <!--<th>状态</th>-->
+										<th>操作</th>
+							          <!--<th style="width: 60px;"></th>-->
+							        </tr>
+							      </thead>
+							      <tbody>
+								  {% for file in files %}
+							        <tr>
+							          <td id="user_id">{{ forloop.counter }}</td>
+							          <td id="user_item">{{ file.display_name }}</td>
+							          <td id="user_item"><i class="icon-music"></i>   {{ file.file_type.display_name }}</td>
+							          <td id="user_item">{{ file.user.username }}</td>
+							          <!--<td id="user_item">已分享</td>-->
+							         <td>
+							              <a href="/admins/file/{{ file.id }}" title="编辑"><i class="icon-pencil"></i></a>
+							              &nbsp;
+							              <a href="#delModal{{ forloop.counter }}" role="button" data-toggle="modal" title="删除"><i class="icon-remove"></i></a>
+							              &nbsp;
+							               <a href="#loModal{{ forloop.counter }}" role="button" data-toggle="modal" title="查看详情"><i class="icon-list-alt"></i></a>
+							          </td>
+							        </tr>
+									{% endfor %}
+							      </tbody>
+							    </table>
+							</div>
+							<div class="pagination">
+							    <ul>
+							        <li><a href="#"><i class="icon-arrow-left"></i></a></li>
+							        <li><a href="#">1</a></li>
+							        <li><a href="#">2</a></li>
+							        <li><a href="#">3</a></li>
+							        <li><a href="#">4</a></li>
+							        <li><a href="#"><i class="icon-arrow-right"></i></a></li>
+							    </ul>
+							</div>
+
+							{% for file in files %}
+							<div class="modal small hide fade" id="delModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							    <div class="modal-header">
+							        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+							        <h3 id="myModalLabel">确认删除？</h3>
+							    </div>
+							    <div class="modal-body">
+							        <p class="error-text"><i class="icon-warning-sign modal-icon"></i>你确认删除该文件吗?</p>
+							    </div>
+							    <div class="modal-footer">
+							        <button class="btn" data-dismiss="modal" aria-hidden="true">继续</button>
+									<!--TODO -->
+							        <button class="btn btn-danger" data-dismiss="modal" onclick="window.location.href='/admins/api-del-file-admin/?id={{ file.id }}'" >删除</button>
+							    </div>
+							</div>
+							
+							<div class="modal fade bs-example-modal-lg"  style="width:400px" id="loModal{{ forloop.counter }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							    <div class="modal-dialog modal-lg">
+							        <div class="modal-content">
+							            <div class="modal-header">
+							                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+							                <h4 class="modal-title" id="myModalLabel">文件详情</h4>
+							            </div>
+							            <div class="modal-body">
+							            	<table class="table">
+							            		<col style="width: 40%" />
+														  <tbody>
+														    <tr>
+														      <td>文件名:</td>
+																<td>{{ file.display_name }}</td>
+														    </tr>
+														    <tr>
+														      <td>文件类型：</td>
+														      <td><i class="icon-music"></i>&nbsp;{{ file.file_type.display_name }}</td>
+														    </tr>											
+														      <td>上传者:</td>
+														      <td>{{ file.user.username }}</td>
+														    </tr>
+														    <tr>
+														      <td>文件状态:</td>
+														      <td>已分享</td>
+														    </tr>
+														    <tr>
+														      <td>扩展名:</td>
+														      <td>{{ file.file_type.ext_name }}</td>
+														    </tr>
+														    <tr>
+														      <td>创建时间:</td>
+														      <td>{{ file.upload_time }}</td>
+														    </tr>
+														    <tr>
+														      <td>文件大小:</td>
+														      <td>{{ file.file_size }}k </td>
+														    </tr>
+														    <!--<tr>-->
+														      <!--<td>下载次数:</td>-->
+														      <!--<td>6</td>-->
+														    <!--</tr>-->
+														  </tbody>
+														</table>								          
+							            </div>
+							            <div class="modal-footer">
+							                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+							                <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+							            </div>
+							        </div><!-- /.modal-content -->
+							    </div><!-- /.modal-dialog -->
+							</div>
+							{% endfor %}
+            </div>
+        </div>
+    </div>
+    
+
+
+    <script src="{% static "mix/bootstrap/js/bootstrap.js" %}"></script>
+    <script type="text/javascript">
+        $("[rel=tooltip]").tooltip();
+        $(function() {
+            $('.demo-cancel-click').click(function(){return false;});
+        });
+    </script>
+    
+  </body>
+</html>
+
+

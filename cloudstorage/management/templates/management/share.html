@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>个人云端存储-分享</title>
+    <link href="{% static 'management/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'management/css/list-style.css' %}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="index.html">
+                云端存储-分享链接列表
+            </a>
+            <div class="navbar-right navbar-text nav-username">
+                <span>已登录用户：{{ username }}</span>
+                &nbsp;
+                <a class="exit" data-toggle="modal" data-target="#logoutModal">退出</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container main-element">
+    <div class="row">
+        <div class="col-md-2 side-bar">
+            <p class="link-list-title nav nav-pills nav-stacked">功能列表</p>
+            <ul type="none" class="link-list">
+                <ul class="nav nav-pills nav-stacked">
+                    <li style="margin-left:-35px;" class="nav-divider"></li>
+                    <li>
+                        <div onclick="document.location.href='/manage/list/-/'" onMouseOver="changeBackground(this)"
+                             onMouseOut="changeBackgroundReturn(this)" class="btn link-list-item">返回
+                        </div>
+                    </li>
+                </ul>
+            </ul>
+
+            <div class="bottom-status">
+                <p class="link-list-title">服务器状态</p>
+                <div style="margin-top: 15px;"><b>磁盘总空间：</b>{{ total_space }}GB</div>
+                <div style="margin-top: 5px;"><b>剩余空间：</b>{{ remain_space }}GB</div>
+                <div class="progress progress-striped active" id="progress" style="width: 150px;">
+                    <div class="progress-bar progress-bar-success" role="progressbar"
+                         aria-valuenow="{{ space_rate }}" aria-valuemin="0" aria-valuemax="100"
+                         style="width: 30%;">
+                        {{ space_rate }}%
+                        <span class="sr-only">{{ space_rate }}% </span>
+                    </div>
+
+                </div>
+                <div style="margin-left: 55px;">
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#updateModal">
+                        升级容量
+                    </button>
+                </div>
+                <div style="margin-top: 10px; font-weight: 200; font-size: 10px;"><i>数据更新时间：{{ time }}</i></div>
+            </div>
+        </div>
+
+        <!--右侧-->
+        <div class="col-md-10 list-bar">
+            <table class="table table-hover">
+                <thead class="file-list-head">
+                <tr>
+                    <th>分享文件名</th>
+                    <th>创建时间</th>
+                    <th>目前是否有效</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for link in link_list %}
+                <tr>
+                    <td>{{ link.filename }}</td>
+                    <td>{{ link.create_time }}</td>
+                    <td>{{ link.if_valid }}</td>
+                    <td><a href="#" data-toggle="modal" data-target="#myModal{{ link.i }}">查看</a> <a href="#"
+                                                                                                     data-toggle="modal"
+                                                                                                     data-target="#deleteModal{{ link.i }}">删除</a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- 模态框升级文件（Modal） -->
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="updateModalLabel">升级容量</h4>
+                </div>
+                <form id="update-space-form" method="post" enctype="multipart/form-data"
+                      action="{% url 'management:api_apply_space' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="space">申请空间</label>
+                            <input class="form-control" id="space" name="new_space" type="number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reason">申请理由</label>
+                            <input class="form-control" id="reason" name="reason" type="text" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input name="back_url" type="text" value="{{ back_url }}" hidden/>
+                        <input class="btn btn-primary" type="submit" value="确定"/>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal -->
+
+{% for link in link_list %}
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal{{ link.i }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel{{ link.i }}"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel{{ link.i }}">链接详情</h4>
+            </div>
+            <div class="modal-body">
+                <div class="link-dialog-body">
+                    <ul type="none">
+                        <li class="share-detail-list-item">
+                            <b>文件路径：{{ link.file_path }}</b>
+                        </li>
+                        <li class="share-detail-list-item">
+                            <b>链接地址：</b><a href="{% url 'management:share_download_page' link.token %}">{% url 'management:share_download_page' link.token %}</a>
+                        </li>
+                        <li class="share-detail-list-item">
+                            <b>到期时间：</b>{{ link.expired_time }}
+                        </li>
+                        <li class="share-detail-list-item">
+                            <a href="{% url 'management:message_link_list_page' link.token %}">查看留言</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+{% endfor %}
+
+{% for link in link_list %}
+<!-- 模态框删除确认（Modal） -->
+<div class="modal fade" id="deleteModal{{ link.i }}" tabindex="-1" role="dialog"
+     aria-labelledby="deleteModalLabel{{ link.i }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="deleteModalLabel{{ link.i }}">确认删除</h4>
+            </div>
+            <div class="modal-body">
+                确认要删除此对象吗？
+            </div>
+            <div class="modal-footer">
+                <form method="post" action="{% url 'management:api_delete_share_link' link.token %}">
+                    {% csrf_token %}
+                    <input name="back_url" type="text" value="{{ back_url }}" hidden/>
+                    <input type="submit" class="btn btn-danger" value="确认">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </form>
+            </div>
+        </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal -->
+{% endfor %}
+
+<script src="{% static 'management/js/jquery.min.js' %}"></script>
+<script src="{% static 'management/js/bootstrap.min.js' %}"></script>
+<script type="text/javascript">
+    function changeBackground(div) {
+        div.style = "background-color: #cbcaca;";
+    }
+
+    function changeBackgroundReturn(div) {
+        div.style = "background-color: #ededed;";
+    }
+
+</script>
+
+</body>
+
+</html>

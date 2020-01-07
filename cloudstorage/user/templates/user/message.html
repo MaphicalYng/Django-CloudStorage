@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>操作结果</title>
+    <link href="{% static 'management/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+    <div class="panel panel-{{ message.type }} message-item">
+        <div class="panel-heading" style="text-align: center">
+            {{ message.title }}  <span class="message-time">{{ message.create_time }}</span>
+        </div>
+        <div class="panel-body" style="text-align: center">
+            <p><b>{{ message.content }}</b></p>
+            <p>5秒后跳转……或<a href="{{ message.redirect }}">点此跳转</a></p>
+        </div>
+    </div>
+
+	<script src="{% static "js/jquery.min.js" %}"></script>
+	<script src="{% static "js/bootstrap.min.js" %}"></script>
+    <script>
+        function redirect() {
+            window.location.href = '{{ message.redirect }}';
+        }
+        window.setTimeout(redirect, 5000)
+    </script>
+</body>
+</html>

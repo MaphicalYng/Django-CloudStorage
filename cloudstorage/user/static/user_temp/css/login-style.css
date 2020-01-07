@@ -1,0 +1,31 @@
+/* CSS Document */
+
+body {
+	background-image: url("../img/city-dawn-sunset-skyline-3337210.jpg")
+}
+
+.login-input {
+	background-color: white;
+	width: 400px;
+	height: 300px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -200px;
+	margin-top: -150px;
+	border-radius: 10px;
+	padding-left: 50px;
+	padding-right: 50px;
+}
+
+footer {
+	position: absolute;
+	bottom: 0px;
+	height: 35px;
+	background-color: black;
+	color: white;
+	text-align: right;
+	line-height: 35px;
+	width: 100%;
+	padding-right: 10px;
+}

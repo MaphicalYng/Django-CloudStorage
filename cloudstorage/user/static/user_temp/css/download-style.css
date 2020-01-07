@@ -1,0 +1,43 @@
+/* CSS Document */
+
+body {
+	background-image: url("../img/photo-of-people-leaning-on-wooden-table-3183183.jpg");
+}
+
+.main-element {
+	background-color: white;
+	position: absolute;
+	top: 93px;
+	left: 200px;
+	right: 200px;
+	bottom: 40px;
+}
+
+.info-list {
+	position: absolute;
+	top: 25%;
+	left: 0;
+	right: 0;
+}
+
+.info-list-title {
+	margin-top: 30px;
+}
+
+.info-list-tip {
+	font-size: 15px;
+	color: gray;
+}
+
+.info-list-main {
+	margin-top: 50px;
+}
+
+.info-list-item {
+	font-size: 15px;
+	font-weight: 500;
+}
+
+.download-button {
+	width: 200px;
+}

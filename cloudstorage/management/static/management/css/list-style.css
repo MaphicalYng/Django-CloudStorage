@@ -1,0 +1,204 @@
+/* CSS Document */
+
+.main-element {
+	position: absolute;
+	top: 53px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+}
+
+.side-bar {
+	background-color: #ededed;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	height: 100%;
+}
+
+.exit{
+	color:white
+}
+
+a{
+	color:black
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+.link-list {
+	text-align: left;
+	padding-left: 5px;
+}
+
+.link-hr {
+	color: black;
+}
+
+.link-list-item {
+	margin-top: 0px;
+	font-weight: 500;
+	font-size: 15px;
+	width: 100px;
+	text-align: left;
+}
+
+.link-list-title {
+	margin-top: 30px;
+	font-weight: 600;
+	font-size: 17px;
+}
+
+.bottom-status {
+	padding-left: 20px;
+	position: absolute;
+	bottom: 20px;
+	left: 0;
+	right: 0;
+	font-size: 15px;
+	font-weight: 500;
+}
+
+.nav-username {
+	position: absolute;
+	right: 50px;
+}
+
+.navbar-brand{
+	padding-left: 50px;
+}
+
+.list-bar {
+	position: absolute;
+	right: 0;
+}
+
+.file-list-head {
+	font-size: 17px;
+}
+
+.file-list-head tr .check_list{
+	width:100px
+}
+
+.file-list-head tr .item_box{
+	width:200px
+}
+
+.file-list-head tr .item_box_l{
+	width:250px
+}
+
+.share-detail-list-item{
+	margin-top: 10px;
+}
+
+ul{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/*sprite*/
+.head .item,.head .brev,.head .list,.list .icos li{
+	background-image: url(../img/ico-message.png);
+	background-repeat: no-repeat;
+	background-position-x: 10px;
+}
+
+.content{
+	width: 102%;
+	font: 12px "微软雅黑";
+	margin-left: -15px;
+}
+
+/*head*/
+.head{
+	height: 50px;
+	padding-left: 16px;
+	background-color: #f5f6f9;
+	font-size: 15px;
+	border-bottom: 1px solid #eff1f5;
+	margin:auto
+}
+.head .item{
+	margin-top: 0px;
+	padding: 7px 10px 8px 36px;
+	background-color: #fff;
+	border: solid 1px #eff1f5;
+	color: #505254;
+	
+
+}
+
+.head .list{
+	background-position-y: -1088px;
+}
+.head .newfile {
+	background-position-y: -542px;
+}
+.head .moveto {
+	background-position-y: -446px;
+}
+.head .rename {
+	background-position-y: -510px;
+}
+.head .delete {
+	background-position-y: -318px;
+}
+.head .copy {
+	background-position-y: -639px;
+}
+.head .paste {
+	background-position-y: -798px;
+}
+.head .share{
+	background-position-y: -383px;
+	
+}
+.head .restorefile{
+	background-position-y: -479px;
+}
+.head .deletex{
+	background-position-y: -318px;
+}
+
+
+/*缩略图横排布局*/
+.container .item{
+	width: 130px;
+	height: 32px;
+	border: 1px solid #fff;
+	position: relative;
+	float: left;
+	margin: 10px;
+}
+
+
+/*hover效果*/
+.head .item:hover{
+	opacity: 1;
+	border-color: #ccc;
+}
+
+/*container中画出来的框框*/
+.box{
+	border: 1px dashed rgba(0, 160, 233, 1);
+	background-color: rgba(0, 160, 233, 0.1);
+	position: absolute;
+}
+
+
+
+.head .item.not {
+    opacity:0.5;
+    cursor: default;
+}
+
+#progress{
+	margin-top: 10px;
+}

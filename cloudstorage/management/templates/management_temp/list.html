@@ -1,0 +1,334 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>个人云端存储-文件列表</title>
+<link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" type="text/css">
+<link href="{% static "css/list-style.css" %}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	
+	<nav class="navbar navbar-inverse">
+	 	<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href=".">
+					云端存储-文件列表
+				</a>
+				<div class="navbar-right navbar-text nav-username">已登录用户：{{ username }}</div>
+			</div>
+		</div>
+	</nav>
+	
+	<div class="container main-element">
+		<div class="row">
+			<div class="col-md-2 side-bar">
+				<p class="link-list-title">功能列表</p>
+				<ul type="none" class="link-list">
+					<li>
+						<div onMouseOver="changeBackground(this)" onMouseOut="changeBackgroundReturn(this)" class="btn link-list-item" data-toggle="modal" data-target="#uploadModal">上传文件</div>
+					</li>
+					<li>
+						<div onMouseOver="changeBackground(this)" onMouseOut="changeBackgroundReturn(this)" class="btn link-list-item" data-toggle="modal" data-target="#newModal">新建文件夹</div>
+					</li>
+					<li>
+						<div onclick="document.location.href='{% url 'management:share_link_list_page' %}'" onMouseOver="changeBackground(this)" onMouseOut="changeBackgroundReturn(this)" class="btn link-list-item">管理分享链接</div>
+					</li>
+					<li>
+						<div onMouseOver="changeBackground(this)" onMouseOut="changeBackgroundReturn(this)" class="btn link-list-item" data-toggle="modal" data-target="#logoutModal">登出</div>
+					</li>
+				</ul>
+				
+				<div class="bottom-status">
+					<p class="link-list-title">服务器状态</p>
+					<div style="margin-top: 15px;"><b>磁盘总空间：</b>{{ total_space }}GB</div>
+					<div style="margin-top: 5px;"><b>剩余空间：</b>{{ remain_space }}GB</div>
+					<div style="margin-top: 10px; font-weight: 200; font-size: 10px;"><i>数据更新时间：{{ time }}</i></div>
+				</div>
+			</div>
+				
+			<div class="col-md-10 list-bar">
+				<table class="table table-hover">
+					<thead class="file-list-head">
+						<tr>
+							<th>文件名</th>
+							<th>创建时间</th>
+							<th>文件大小</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% if not if_root %}
+						<tr>
+							<td>..</td>
+							<td></td>
+							<td></td>
+							<td><a href="{% url 'management:file_list_page' last_path %}/">打开</a></td>
+						</tr>
+						{% endif %}
+
+						{% for d in dir %}
+						<tr>
+							<td>{{ d.0 }}</td>
+							<td>{{ d.2 }}</td>
+							<td></td>
+							<td><a href="{% url 'management:file_list_page' d.4 %}/">打开</a> <a href="#" data-toggle="modal" data-target="#renameModal{{ d.3 }}">重命名</a> <a href="#" data-toggle="modal" data-target="#deleteModal{{ d.3 }}">删除</a></td>
+						</tr>
+						{% endfor %}
+						{% for f in file %}
+						<tr>
+							<td>{{ f.0 }}</td>
+							<td>{{ f.2 }}</td>
+							<td>{{ f.3 }}KB</td>
+							<td>
+								<form id="download-form{{ f.4 }}" method="post" action="{% url 'management:api_download_file' f.1 %}">
+									{% csrf_token %}
+									<a href="#" onclick="download{{ f.4 }}()">下载</a> <a href="#" data-toggle="modal" data-target="#renameModal{{ f.4 }}">重命名</a> <a href="#" data-toggle="modal" data-target="#deleteModal{{ f.4 }}">删除</a> <a href="#" data-toggle="modal" data-target="#shareModal{{ f.4 }}">分享</a>
+									<input name="current_path" type="text" value="{{ current_path }}" hidden />
+								</form>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	<!-- 模态框上传文件（Modal） -->
+	<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-primary">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="uploadModalLabel">上传文件</h4>
+				</div>
+				<form method="post" action="{% url 'management:api_upload_file' %}" enctype="multipart/form-data">
+					{% csrf_token %}
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="file_name">上传名称</label>
+							<input class="form-control" id="file_name" name="file_name" type="text" required/>
+						</div>
+						<div class="form-group">
+							<label for="file">文件</label>
+							<input class="form-control" id="file" name="file" type="file" required/>
+							<input name="current_path" type="text" value="{{ current_path }}" hidden />
+							<input name="back_url" type="text" value="{{ back_url }}" hidden />
+						</div>
+					</div>
+					<div class="modal-footer">
+						<input class="btn btn-primary" type="submit" value="上传"/>
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</div>
+				</form>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+
+	<!-- 模态框新建文件夹（Modal） -->
+	<div class="modal fade" id="newModal" tabindex="-1" role="dialog" aria-labelledby="newModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-primary">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="newModalLabel">新建文件夹</h4>
+				</div>
+				<form method="post" action="{% url 'management:api_create_directory' %}">
+					{% csrf_token %}
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="directory_name">文件夹名称</label>
+							<input class="form-control" id="directory_name" name="directory_name" type="text" required/>
+							<input name="current_path" type="text" value="{{ current_path }}" hidden />
+							<input name="back_url" type="text" value="{{ back_url }}" hidden />
+						</div>
+					</div>
+					<div class="modal-footer">
+						<input class="btn btn-primary" type="submit" value="创建"/>
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</div>
+				</form>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+
+	{% for f in file %}
+	<!-- 模态框分享文件（Modal） -->
+	<div class="modal fade" id="shareModal{{ f.4 }}" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel{{ f.4 }}" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-primary">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="uploadModalLabel{{ f.4 }}">分享文件</h4>
+				</div>
+				<form method="post" action="{% url 'management:api_create_share_link' f.1 %}">
+					{% csrf_token %}
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="day{{ f.4 }}">有效天数</label>
+							<input class="form-control" id="day{{ f.4 }}" name="day" type="text" required/>
+						</div>
+							<input name="current_path" type="text" value="{{ current_path }}" hidden />
+							<input name="username" type="text" value="{{ username }}" hidden />
+							<input name="back_url" type="text" value="{{ back_url }}" hidden />
+					</div>
+					<div class="modal-footer">
+						<input class="btn btn-primary" type="submit" value="确认"/>
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</div>
+				</form>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+	{% endfor %}
+
+	{% for d in dir %}
+	<!-- 模态框文件（夹）重命名（Modal） -->
+	<div class="modal fade" id="renameModal{{ d.3 }}" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel{{ d.3 }}" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-primary">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="renameModalLabel{{ d.3 }}">重命名</h4>
+				</div>
+				<form method="post" action="{% url 'management:api_rename_directory' d.1 %}">
+					{% csrf_token %}
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="new_name{{ d.3 }}">新的名称</label>
+							<input class="form-control" id="new_name{{ d.3 }}" name="new_name" type="text" required/>
+							<input name="current_path" type="text" value="{{ current_path }}" hidden />
+							<input name="back_url" type="text" value="{{ back_url }}" hidden />
+						</div>
+					</div>
+					<div class="modal-footer">
+						<input class="btn btn-primary" type="submit" value="提交"/>
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</div>
+				</form>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+	{% endfor %}
+
+	{% for f in file %}
+	<!-- 模态框文件（夹）重命名（Modal） -->
+	<div class="modal fade" id="renameModal{{ f.4 }}" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel{{ f.4 }}" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-primary">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="renameModalLabel{{ f.4 }}">重命名</h4>
+				</div>
+				<form method="post" action="{% url 'management:api_rename_file' f.1 %}">
+					{% csrf_token %}
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="new_name{{ f.4 }}">新的名称</label>
+							<input class="form-control" id="new_name{{ f.4 }}" name="new_name" type="text" required/>
+							<input name="current_path" type="text" value="{{ current_path }}" hidden />
+							<input name="back_url" type="text" value="{{ back_url }}" hidden />
+						</div>
+					</div>
+					<div class="modal-footer">
+						<input class="btn btn-primary" type="submit" value="提交"/>
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</div>
+				</form>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+	{% endfor %}
+
+	{% for d in dir %}
+	<!-- 模态框删除确认（Modal） -->
+	<div class="modal fade" id="deleteModal{{ d.3 }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ d.3 }}" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-danger">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="deleteModalLabel{{ d.3 }}">确认删除</h4>
+				</div>
+				<div class="modal-body">
+					确认要删除此对象吗？
+				</div>
+				<div class="modal-footer">
+					<form method="post" action="{% url 'management:api_delete_directory' d.1 %}">
+						{% csrf_token %}
+						<input name="current_path" type="text" value="{{ current_path }}" hidden />
+						<input name="back_url" type="text" value="{{ back_url }}" hidden />
+						<input type="submit" class="btn btn-danger" value="确认">
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</form>
+				</div>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+	{% endfor %}
+
+	{% for f in file %}
+	<!-- 模态框删除确认（Modal） -->
+	<div class="modal fade" id="deleteModal{{ f.4 }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ f.4 }}" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header bg-danger">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="deleteModalLabel{{ f.4 }}">确认删除</h4>
+				</div>
+				<div class="modal-body">
+					确认要删除此对象吗？
+				</div>
+				<div class="modal-footer">
+					<form method="post" action="{% url 'management:api_delete_file' f.1 %}">
+						{% csrf_token %}
+						<input name="current_path" type="text" value="{{ current_path }}" hidden />
+						<input name="back_url" type="text" value="{{ back_url }}" hidden />
+						<input type="submit" class="btn btn-danger" value="确认">
+						<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					</form>
+				</div>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+	{% endfor %}
+	
+	<!-- 模态框登出确认（Modal） -->
+	<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="logoutModalLabel">确认登出</h4>
+				</div>
+				<div class="modal-body">
+					确认要登出吗？
+				</div>
+				<div class="modal-footer">
+					<button onclick="document.location.href='/user/api/logout/'" type="button" class="btn btn-danger">确认</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+				</div>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+	
+	<script src="{% static "js/jquery.min.js" %}"></script>
+	<script src="{% static "js/bootstrap.min.js" %}"></script>
+	<script type="text/javascript">
+		function changeBackground(div) {
+			div.style = "background-color: #cbcaca;";
+		}
+		
+		function changeBackgroundReturn(div) {
+			div.style = "background-color: #ededed;";
+		}
+
+		{% for f in file %}
+		function download{{ f.4 }}() {
+			document.getElementById('download-form{{ f.4 }}').submit();
+		}
+		{% endfor %}
+	</script>
+</body>
+</html>

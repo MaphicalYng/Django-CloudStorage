@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>login</title>
+
+    <link rel="stylesheet" media="screen" href="{% static 'user/css/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'user/css/reset.css' %}"/>
+    <link rel="stylesheet" href="{% static 'user/css/toastr.min.css' %}">
+    <script src="{% static 'user/js/jquery.js' %}" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+
+<div id="particles-js">
+    <div class="login">
+        <div class="login-top">
+            <img src="{% static 'user/img/logo.png' %}" style="width: 300px;"/>
+        </div>
+        <div class="maintab">
+            <ul class="tab">
+                <li class="tab-item active">登录</li>
+                <li class="tab-item">注册</li>
+            </ul>
+
+            <div class="content">
+                <!--登录-->
+                <div class="box selected">
+                    <form id="form-login" action="{% url 'user:api_login' %}" method="post">
+                        {% csrf_token %}
+						<div class="login-center clearfix">
+                            <div class="login-center-img"><img src="{% static 'user/img/name.png' %}"/></div>
+                            <div class="login-center-input">
+                                <input type="text" name="username" value="" placeholder="请输入您的用户名" onfocus="this.placeholder=''"
+                                       onblur="this.placeholder='请输入您的用户名'" required/>
+                                <div class="login-center-input-text">用户名</div>
+                            </div>
+                        </div>
+                        <div class="login-center clearfix">
+                            <div class="login-center-img"><img src="{% static 'user/img/password.png' %}"/></div>
+                            <div class="login-center-input">
+                                <input type="password" name="password" value="" placeholder="请输入您的密码"
+                                       onfocus="this.placeholder=''"
+                                       onblur="this.placeholder='请输入您的密码'" required/>
+                                <div class="login-center-input-text">密码</div>
+                            </div>
+                        </div>
+                        <div class="forgotPwd"><!--忘记密码-->
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <a onclick="toregister()">免费注册</a>
+                        </div>
+                        <input class="login-button" type="submit" value="登录">
+                    </form>
+                </div>
+                <!--注册-->
+                <div class="box">
+                    <form action="{% url 'user:api_register' %}" method="post" onsubmit="return checkForm()">
+						{% csrf_token %}
+                        <div class="register-center clearfix">
+                            <div class="login-center-img"><img src="{% static 'user/img/name.png' %}"/></div>
+                            <div class="login-center-input">
+                                <input id="name" type="text" name="username" value="" placeholder="请输入您的用户名"
+                                       onfocus="this.placeholder=''" onblur="this.placeholder='请输入您的用户名'" required/>
+                                <div class="login-center-input-text">用户名</div>
+                            </div>
+                        </div>
+                        <div class="register-center clearfix">
+                            <div class="login-center-img"><img src="{% static 'user/img/email.png' %}"/></div>
+                            <div class="login-center-input">
+                                <input id="email" type="text" name="email" value="" placeholder="请输入您的邮箱"
+                                       onfocus="this.placeholder=''" onblur="this.placeholder='请输入您的用户名'" required/>
+                                <div class="login-center-input-text">邮箱</div>
+                            </div>
+                        </div>
+                        <div class="register-center clearfix">
+                            <div class="login-center-img"><img src="{% static 'user/img/password.png' %}"/></div>
+                            <div class="login-center-input">
+                                <input id="pw" type="password" name="password" value="" placeholder="请输入您的密码"
+                                       onfocus="this.placeholder=''" onblur="this.placeholder='请输入您的密码'" required/>
+                                <div class="login-center-input-text">密码</div>
+                            </div>
+                        </div>
+                        <div class="register-center clearfix">
+                            <div class="login-center-img"><img src="{% static 'user/img/password.png' %}"/></div>
+                            <div class="login-center-input">
+                                <input id="pw2" type="password" name="password" value="" placeholder="请再次输入您的密码"
+                                       onfocus="this.placeholder=''" onblur="this.placeholder='请输入您的密码'" required/>
+                                <div class="login-center-input-text">确认密码</div>
+                            </div>
+                        </div>
+                        <div class="forgotPwd">
+                            <a onclick="tologin()">已有账号？立即登录</a>
+                        </div>
+                        <input class="register-button" type="submit" value="注册">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- scripts -->
+<script src="{% static 'user/js/particles.min.js' %}"></script>
+<script src="{% static 'user/js/app.js' %}"></script>
+<script type="text/javascript" src="{% static 'user/js/toastr.min.js' %}"></script>
+<script type="text/javascript">
+	function checkForm() {
+		var pw = document.getElementById('pw')
+		var pw2 = document.getElementById('pw2')
+		console.log(pw.value)
+		console.log(pw2.value)
+		if (pw.value === pw2.value) {
+			return true
+		} else {
+			toastr.warning('您两次输入的密码不匹配。')
+			return false
+		}
+	}
+
+    function tologin() {
+        $(".login .tab .tab-item:eq(0)").click()
+    }
+
+    function toregister() {
+        $(".login .tab .tab-item:eq(1)").click()
+    }
+
+    $(document).ready(function () {
+        $(".login .tab .tab-item").click(function () {
+            if ($(".login").height() == 450) {
+                $(".login").height(550)
+                $(".login").css("top", "45%")
+            } else {
+                $(".login").height(450)
+                $(".login").css("top", "55%")
+            }
+
+            $(this).addClass("active").siblings().removeClass("active")
+            $(".content .box").eq($(this).index()).show().siblings().hide()
+        })
+    })
+
+    toastr.options = {
+
+        "closeButton": false, //是否显示关闭按钮
+
+        "debug": false, //是否使用debug模式
+
+        "positionClass": "toast-center",//弹出窗的位置
+
+        "showDuration": "300",//显示的动画时间
+
+        "hideDuration": "300",//消失的动画时间
+
+        "timeOut": "1000", //展现时间
+
+        "showEasing": "swing",//显示时的动画缓冲方式
+
+        "hideEasing": "linear",//消失时的动画缓冲方式
+
+        "showMethod": "fadeIn",//显示时的动画方式
+
+        "hideMethod": "fadeOut" //消失时的动画方式
+    };
+
+
+</script>
+
+</body>
+</html>

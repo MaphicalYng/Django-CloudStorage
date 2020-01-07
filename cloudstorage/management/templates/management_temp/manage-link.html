@@ -1,0 +1,139 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>个人云端存储-分享链接列表</title>
+<link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" type="text/css">
+<link href="{% static "css/link-style.css" %}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	
+	<nav class="navbar navbar-inverse">
+	 	<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href=".">
+					云端存储-分享链接列表
+				</a>
+				<div class="navbar-right navbar-text nav-username">已登录用户：MaphicalYng</div>
+			</div>
+		</div>
+	</nav>
+	
+	<div class="container main-element">
+		<div class="row">
+			<div class="col-md-2 side-bar">
+				<p class="link-list-title">功能列表</p>
+				<ul type="none" class="link-list">
+					<li>
+						<div onclick="document.location.href='/manage/list/-/'" onMouseOver="changeBackground(this)" onMouseOut="changeBackgroundReturn(this)" class="btn link-list-item">返回</div>
+					</li>
+				</ul>
+				
+				<div class="bottom-status">
+					<p class="link-list-title">服务器状态</p>
+					<div style="margin-top: 15px;"><b>磁盘总空间：</b>{{ total_space }}GB</div>
+					<div style="margin-top: 5px;"><b>剩余空间：</b>{{ remain_space }}GB</div>
+					<div style="margin-top: 10px; font-weight: 200; font-size: 10px;"><i>数据更新时间：{{ time }}</i></div>
+				</div>
+			</div>
+				
+			<div class="col-md-10 list-bar">
+				<table class="table table-hover">
+					<thead class="file-list-head">
+						<tr>
+							<th>分享文件名</th>
+							<th>创建时间</th>
+							<th>目前是否有效</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for link in link_list %}
+						<tr>
+							<td>{{ link.filename }}</td>
+							<td>{{ link.create_time }}</td>
+							<td>{{ link.if_valid }}</td>
+							<td><a href="#" data-toggle="modal" data-target="#myModal{{ link.i }}">查看</a> <a href="#" data-toggle="modal" data-target="#deleteModal{{ link.i }}">删除</a></td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			{% for link in link_list %}
+			<!-- 模态框（Modal） -->
+			<div class="modal fade" id="myModal{{ link.i }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel{{ link.i }}" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header bg-primary">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+							<h4 class="modal-title" id="myModalLabel{{ link.i }}">链接详情</h4>
+						</div>
+						<div class="modal-body">
+							<div class="link-dialog-body">
+								<ul type="none">
+									<li class="share-detail-list-item">
+										<b>文件路径：{{ link.file_path }}</b>
+									</li>
+									<li class="share-detail-list-item">
+										<b>链接地址：</b><a href="{% url 'management:share_download_page' link.token %}">{% url 'management:share_download_page' link.token %}</a>
+									</li>
+									<li class="share-detail-list-item">
+										<b>到期时间：</b>{{ link.expired_time }}
+									</li>
+									<li class="share-detail-list-item">
+										<a href="{% url 'management:message_link_list_page' link.token %}">查看留言</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+						</div>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal -->
+			{% endfor %}
+
+			{% for link in link_list %}
+			<!-- 模态框删除确认（Modal） -->
+			<div class="modal fade" id="deleteModal{{ link.i }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ link.i }}" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header bg-danger">
+							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+							<h4 class="modal-title" id="deleteModalLabel{{ link.i }}">确认删除</h4>
+						</div>
+						<div class="modal-body">
+							确认要删除此对象吗？
+						</div>
+						<div class="modal-footer">
+							<form method="post" action="{% url 'management:api_delete_share_link' link.token %}">
+								{% csrf_token %}
+								<input name="back_url" type="text" value="{{ back_url }}" hidden />
+								<input type="submit" class="btn btn-danger" value="确认">
+								<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+							</form>
+						</div>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal -->
+			{% endfor %}
+		</div>
+	</div>
+	
+	<script src="{% static "js/jquery.min.js" %}"></script>
+	<script src="{% static "js/bootstrap.min.js" %}"></script>
+	<script type="text/javascript">
+		// 实现按钮背景颜色改变效果
+		function changeBackground(div) {
+			div.style = "background-color: #cbcaca;";
+		}
+		
+		function changeBackgroundReturn(div) {
+			div.style = "background-color: #ededed;";
+		}
+	</script>
+</body>
+</html>

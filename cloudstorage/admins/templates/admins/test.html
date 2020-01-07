@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JS动态添加删除表格数据</title>
+</head>
+<body>
+	
+<input type="text" id="provinceName"><br>
+<input type="button" value="添加" onclick="f()"><br>
+<label>文件类型</label>
+<input type="text" id="type_name" disabled="disabled" value="音乐" class="input-xlarge">
+<label>扩展名</label>
+<select class="form-control input-xlarge" id="type_selection">
+
+</select>
+<select name="province" id="type_selection">
+    <option>--请选择省份--</option>
+</select>
+
+<script type="text/javascript">
+   function f(str) {
+		var musicValue=new Array("001","002","003");
+		var imageValue=new Array("001","002","003");
+		var filmValue=new Array("001","002","003");
+		var fileValue=new Array("001","002","003");
+	    var type_value = new Array()
+				switch(str) {
+				     case "音乐":
+				        type_value=musicValue
+				        break;
+				     case "图片":
+				        type_value=imageValue
+				        break;
+				     case "视频":
+				        type_value=filmValue
+				        break;
+				     case "文档":
+				        type_value=fileValue
+				        break;
+				} 
+	    
+	    var selections=document.getElementById("type_selection");
+	    for (var i=0;i<type_value.length;i++){
+			var optionObj=document.createElement("option");
+	        optionObj.innerHTML=musicValue[i];
+	        optionObj.value=provinceName;
+	        selections.appendChild(optionObj);
+	    }
+	        
+    }
+	var str=document.getElementById("type_name");
+	alert(str.value)
+    f(str.value);
+</script>
+
+</body>
+</html>
